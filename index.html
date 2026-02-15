@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Coordinate Teleporter</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f0f2f5; }
+        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+        button { padding: 10px 20px; font-size: 1rem; cursor: pointer; background: #4285F4; color: white; border: none; border-radius: 4px; }
+        #link-container { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Random Earth Teleporter</h2>
+    <p>Click below to generate a random location on Earth.</p>
+    <button onclick="generateLocation()">Generate Random Link</button>
+
+    <div id="link-container">
+        </div>
+</div>
+
+<script>
+    function generateLocation() {
+        // 1. Generate Latitude: -90 to 90
+        // Math.random() is 0 to 1. (0 * 180) - 90 = -90. (1 * 180) - 90 = 90.
+        const lat = (Math.random() * 180) - 90;
+
+        // 2. Generate Longitude: -180 to 180
+        // (0 * 360) - 180 = -180. (1 * 360) - 180 = 180.
+        const lng = (Math.random() * 360) - 180;
+
+        // 3. Create Google Maps Link
+        // Format: https://www.google.com/maps/@lat,lng,zoomz
+        // Max zoom for satellite/map is usually 21z or 22z.
+        const zoom = 21;
+        const url = `https://www.google.com/maps/@${lat},${lng},${zoom}z`;
+
+        // 4. Update the UI
+        const container = document.getElementById('link-container');
+        container.innerHTML = `
+            <p><strong>Lat:</strong> ${lat.toFixed(6)}<br>
+            <strong>Lng:</strong> ${lng.toFixed(6)}</p>
+            <a href="${url}" target="_blank">Teleport to Google Maps</a>
+        `;
+    }
+</script>
+
+</body>
+</html>
