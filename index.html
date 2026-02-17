@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Mystery Roulette</title>
+    <title>Global Mystery Roulette - Audio Edition</title>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -13,19 +13,19 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background: #0f0f0f;
+            background: #0a0a0b;
             color: #e0e0e0;
         }
         #stage {
             text-align: center;
-            min-height: 250px;
+            min-height: 300px;
         }
         .countdown {
-            font-size: 6rem;
-            font-weight: 800;
-            color: #ff3e3e;
+            font-size: 7rem;
+            font-weight: 900;
+            color: #00f2ff;
             margin: 0;
-            text-shadow: 0 0 20px rgba(255, 62, 62, 0.5);
+            text-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
         }
         button {
             padding: 18px 45px;
@@ -35,63 +35,108 @@
             background: #4285F4;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             transition: all 0.2s ease;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
         button:hover {
             background: #357abd;
-            box-shadow: 0 0 15px rgba(66, 133, 244, 0.6);
+            box-shadow: 0 0 20px rgba(66, 133, 244, 0.5);
         }
         .result-link {
             display: inline-block;
             margin-top: 20px;
-            padding: 15px 35px;
+            padding: 20px 40px;
             background: #34a853;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 4px;
             font-weight: bold;
-            animation: fadeIn 0.5s ease;
+            font-size: 1.5rem;
+            animation: pulse 1.5s infinite;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
     <div id="stage">
-        <h1>Global Roulette</h1>
+        <h1 style="letter-spacing: 5px; color: #555;">GLOBAL ROULETTE</h1>
         <div id="content">
             <button onclick="startSequence()">Begin Teleportation</button>
         </div>
     </div>
 
     <script>
+        // Frequencies for C Major Scale (C3 to C4)
+        const cMajorScale = [
+            130.81, // C3
+            146.83, // D3
+            164.81, // E3
+            174.61, // F3
+            196.00, // G3
+            220.00, // A3
+            246.94, // B3
+            261.63  // C4
+        ];
+
+        let audioCtx = null;
+
+        function playRandomBeep() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            // Pick a random note from our scale
+            const randomFreq = cMajorScale[Math.floor(Math.random() * cMajorScale.length)];
+            
+            oscillator.type = 'square'; // 'square' gives it that retro 8-bit beep feel
+            oscillator.frequency.setValueAtTime(randomFreq, audioCtx.currentTime);
+
+            // Volume envelope (to prevent clicking sounds)
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        }
+
         function startSequence() {
             const content = document.getElementById('content');
             
-            // Generate coordinates (math logic preserved)
+            // Calculate random point on a sphere
             const lng = (Math.random() * 360) - 180;
             const lat = Math.asin(Math.random() * 2 - 1) * (180 / Math.PI);
             const url = `https://www.google.com/maps/@${lat.toFixed(6)},${lng.toFixed(6)},12z`;
 
             let count = 3;
+            
+            // Initial beep and display
+            playRandomBeep();
             content.innerHTML = `<p class="countdown">${count}</p>`;
 
             const timer = setInterval(() => {
                 count--;
                 if (count > 0) {
+                    playRandomBeep();
                     content.innerHTML = `<p class="countdown">${count}</p>`;
                 } else {
                     clearInterval(timer);
+                    playRandomBeep(); // Final "Ready" beep
                     content.innerHTML = `
-                        <p class="countdown">READY</p>
-                        <a href="${url}" target="_blank" class="result-link">VIEW LOCATION</a>
-                        <p><br><button onclick="startSequence()" style="font-size: 0.8rem; padding: 10px 20px; background: #444;">Reroll</button></p>
+                        <p class="countdown" style="color:#34a853">GO</p>
+                        <a href="${url}" target="_blank" class="result-link">OPEN MAP</a>
+                        <p><br><button onclick="startSequence()" style="font-size: 0.8rem; background: #333;">Reroll</button></p>
                     `;
                 }
             }, 1000);
