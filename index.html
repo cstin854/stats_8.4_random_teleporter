@@ -3,66 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spherical Random Map Link</title>
+    <title>Global Roulette - Zoom 12</title>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-color: #f4f4f9;
+            margin: 0;
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+        }
+        #display-area {
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .countdown {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #4285F4;
+            margin: 0;
+        }
+        .coords {
+            color: #888;
+            font-family: monospace;
+            margin-top: 10px;
         }
         button {
-            padding: 15px 30px;
+            padding: 15px 40px;
             font-size: 1.2rem;
             cursor: pointer;
             background-color: #4285F4;
             color: white;
             border: none;
-            border-radius: 8px;
-            transition: background 0.2s;
+            border-radius: 50px;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         button:hover {
             background-color: #357abd;
+            transform: scale(1.05);
         }
-        #link-container {
-            margin-top: 20px;
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
 
     <h1>Global Roulette</h1>
-    <p>Generates a mathematically unbiased random location.</p>
+    <p>Finding a random, unbiased coordinate on Earth...</p>
     
-    <button onclick="generateRandomLocation()">Teleport Me</button>
-
-    <div id="link-container"></div>
+    <div id="display-area">
+        <button id="start-btn" onclick="startTeleport()">Teleport Me</button>
+        <div id="status"></div>
+    </div>
 
     <script>
-        function generateRandomLocation() {
-            // 1. Longitude is easy: uniform distribution from -180 to 180
+        function startTeleport() {
+            const btn = document.getElementById('start-btn');
+            const status = document.getElementById('status');
+            btn.disabled = true;
+
+            // 1. Generate the unbiased coordinates immediately
             const lng = (Math.random() * 360) - 180;
-
-            // 2. Latitude fix: Use arcsin of a value between -1 and 1 
-            // to avoid polar over-sampling.
             const u = Math.random() * 2 - 1;
-            const latRad = Math.asin(u); 
-            const lat = latRad * (180 / Math.PI); // Convert radians to degrees
-
-            // 3. Set a zoom level
-            const zoom = 10;
-
+            const lat = Math.asin(u) * (180 / Math.PI);
+            const zoom = 12;
+            
             const url = `https://www.google.com/maps/@${lat.toFixed(6)},${lng.toFixed(6)},${zoom}z`;
 
-            // Display the link
-            const container = document.getElementById('link-container');
-            container.innerHTML = `<a href="${url}" target="_blank">Open Location (${lat.toFixed(2)}, ${lng.toFixed(2)})</a>`;
-            
-            // Optional: Automatically open it
-            //window.open(url, '_blank');
+            // 2. Start the showy countdown
+            let seconds = 5;
+            status.innerHTML = `<p class="countdown">${seconds}</p><p class="coords">Calculating trajectory...</p>`;
+
+            const timer = setInterval(() => {
+                seconds--;
+                if (seconds > 0) {
+                    status.innerHTML = `<p class="countdown">${seconds}</p><p class="coords">Coordinates locked...</p>`;
+                } else {
+                    clearInterval(timer);
+                    status.innerHTML = `<p class="countdown">GO!</p><p class="coords">${lat.toFixed(4)}, ${lng.toFixed(4)}</p>`;
+                    
+                    // 3. Open the link
+                    window.open(url, '_blank');
+                    
+                    // Reset button after a short delay
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.innerText = "Try Again";
+                    }, 2000);
+                }
+            }, 1000);
         }
     </script>
 </body>
