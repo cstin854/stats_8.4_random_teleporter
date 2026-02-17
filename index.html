@@ -3,102 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Roulette - Zoom 12</title>
+    <title>Global Mystery Roulette</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background: #1a1a1a;
-            color: white;
-            text-align: center;
+            background: #0f0f0f;
+            color: #e0e0e0;
         }
-        #display-area {
-            height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        #stage {
+            text-align: center;
+            min-height: 250px;
         }
         .countdown {
-            font-size: 5rem;
-            font-weight: bold;
-            color: #4285F4;
+            font-size: 6rem;
+            font-weight: 800;
+            color: #ff3e3e;
             margin: 0;
-        }
-        .coords {
-            color: #888;
-            font-family: monospace;
-            margin-top: 10px;
+            text-shadow: 0 0 20px rgba(255, 62, 62, 0.5);
         }
         button {
-            padding: 15px 40px;
-            font-size: 1.2rem;
+            padding: 18px 45px;
+            font-size: 1.3rem;
+            font-weight: bold;
             cursor: pointer;
-            background-color: #4285F4;
+            background: #4285F4;
             color: white;
             border: none;
-            border-radius: 50px;
-            transition: transform 0.2s, background 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border-radius: 5px;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         button:hover {
-            background-color: #357abd;
-            transform: scale(1.05);
+            background: #357abd;
+            box-shadow: 0 0 15px rgba(66, 133, 244, 0.6);
         }
-        button:disabled {
-            background-color: #555;
-            cursor: not-allowed;
+        .result-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 35px;
+            background: #34a853;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <h1>Global Roulette</h1>
-    <p>Finding a random, unbiased coordinate on Earth...</p>
-    
-    <div id="display-area">
-        <button id="start-btn" onclick="startTeleport()">Teleport Me</button>
-        <div id="status"></div>
+    <div id="stage">
+        <h1>Global Roulette</h1>
+        <div id="content">
+            <button onclick="startSequence()">Begin Teleportation</button>
+        </div>
     </div>
 
     <script>
-        function startTeleport() {
-            const btn = document.getElementById('start-btn');
-            const status = document.getElementById('status');
-            btn.disabled = true;
-
-            // 1. Generate the unbiased coordinates immediately
-            const lng = (Math.random() * 360) - 180;
-            const u = Math.random() * 2 - 1;
-            const lat = Math.asin(u) * (180 / Math.PI);
-            const zoom = 12;
+        function startSequence() {
+            const content = document.getElementById('content');
             
-            const url = `https://www.google.com/maps/@${lat.toFixed(6)},${lng.toFixed(6)},${zoom}z`;
+            // Generate coordinates (math logic preserved)
+            const lng = (Math.random() * 360) - 180;
+            const lat = Math.asin(Math.random() * 2 - 1) * (180 / Math.PI);
+            const url = `https://www.google.com/maps/@${lat.toFixed(6)},${lng.toFixed(6)},12z`;
 
-            // 2. Start the showy countdown
-            let seconds = 5;
-            status.innerHTML = `<p class="countdown">${seconds}</p><p class="coords">Calculating trajectory...</p>`;
+            let count = 3;
+            content.innerHTML = `<p class="countdown">${count}</p>`;
 
             const timer = setInterval(() => {
-                seconds--;
-                if (seconds > 0) {
-                    status.innerHTML = `<p class="countdown">${seconds}</p><p class="coords">Coordinates locked...</p>`;
+                count--;
+                if (count > 0) {
+                    content.innerHTML = `<p class="countdown">${count}</p>`;
                 } else {
                     clearInterval(timer);
-                    status.innerHTML = `<p class="countdown">GO!</p><p class="coords">${lat.toFixed(4)}, ${lng.toFixed(4)}</p>`;
-                    
-                    // 3. Open the link
-                    window.open(url, '_blank');
-                    
-                    // Reset button after a short delay
-                    setTimeout(() => {
-                        btn.disabled = false;
-                        btn.innerText = "Try Again";
-                    }, 2000);
+                    content.innerHTML = `
+                        <p class="countdown">READY</p>
+                        <a href="${url}" target="_blank" class="result-link">VIEW LOCATION</a>
+                        <p><br><button onclick="startSequence()" style="font-size: 0.8rem; padding: 10px 20px; background: #444;">Reroll</button></p>
+                    `;
                 }
             }, 1000);
         }
