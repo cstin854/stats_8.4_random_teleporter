@@ -52,8 +52,8 @@
             const latRad = Math.asin(u); 
             const lat = latRad * (180 / Math.PI); // Convert radians to degrees
 
-            // 3. Set a zoom level (5 is good for land/water context)
-            const zoom = 5;
+            // 3. Set a zoom level
+            const zoom = 10;
 
             const url = `https://www.google.com/maps/@${lat.toFixed(6)},${lng.toFixed(6)},${zoom}z`;
 
@@ -62,7 +62,7 @@
             container.innerHTML = `<a href="${url}" target="_blank">Open Location (${lat.toFixed(2)}, ${lng.toFixed(2)})</a>`;
             
             // Optional: Automatically open it
-            window.open(url, '_blank');
+            //window.open(url, '_blank');
         }
     </script>
 </body>
